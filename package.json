@@ -9,7 +9,7 @@
     "lint": "next lint",
     "lint:fix": "eslint . --fix && yarn format",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write src",
+    "format": "prettier --write .",
     "up": "yarn upgrade-interactive",
     "up-latest": "yarn up --latest",
     "postbuild": "next-sitemap --config next-sitemap.config.js",
