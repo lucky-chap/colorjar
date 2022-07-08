@@ -3,8 +3,8 @@ import Link from "next/link";
 
 const Home: NextPage = () => {
   return (
-    <Link href={"/test"}>
-      <button>Next page</button>
+    <Link href="/test">
+      <button type="button">Next page</button>
     </Link>
   );
 };
