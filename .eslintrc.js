@@ -4,7 +4,7 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    es2021: true,
+    es2021: true
   },
   extends: [
     "next/core-web-vitals",
@@ -16,44 +16,45 @@ module.exports = {
     "plugin:sonarjs/recommended",
     "plugin:security/recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
+    "plugin:react-hooks/recommended"
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
-      tsx: true,
+      tsx: true
     },
     ecmaVersion: "latest",
-    sourceType: "module",
+    sourceType: "module"
   },
   plugins: ["react", "@typescript-eslint"],
   settings: {
     react: {
-      version: "detect",
+      version: "detect"
     },
     "import/resolver": {
       node: {
-        extensions: [".ts", ".tsx"],
-      },
-    },
+        extensions: [".ts", ".tsx"]
+      }
+    }
   },
   rules: {
     "react/jsx-filename-extension": [
       2,
-      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+      { extensions: [".js", ".jsx", ".ts", ".tsx"] }
     ],
     "react/function-component-definition": [
       2,
       {
         namedComponents: "arrow-function",
-        unnamedComponents: "arrow-function",
-      },
+        unnamedComponents: "arrow-function"
+      }
     ],
     "react/jsx-props-no-spreading": "off",
     "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-explicit-any": "off",
     "react/react-in-jsx-scope": "off",
+    "no-plusplus": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -61,18 +62,18 @@ module.exports = {
         js: "never",
         jsx: "never",
         ts: "never",
-        tsx: "never",
-      },
+        tsx: "never"
+      }
     ],
     "jsx-a11y/anchor-is-valid": [
       "error",
       {
         components: ["Link"],
         specialLink: ["hrefLeft", "hrefRight"],
-        aspects: ["invalidHref", "preferButton"],
-      },
+        aspects: ["invalidHref", "preferButton"]
+      }
     ],
     "no-nested-ternary": "off",
-    "import/prefer-default-export": "off",
-  },
+    "import/prefer-default-export": "off"
+  }
 };
