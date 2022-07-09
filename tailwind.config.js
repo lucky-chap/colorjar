@@ -16,7 +16,8 @@ module.exports = {
       },
       fontFamily: {
         inter: ["Inter"],
-        raleway: ["Raleway"]
+        raleway: ["Raleway"],
+        monospace: ["Monospace"]
       }
     }
   },

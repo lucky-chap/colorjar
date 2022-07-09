@@ -20,10 +20,9 @@
   }
 }
 
-.masonry {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: masonry;
+/* styles for the particular color picker */
+.chrome-picker {
+  width: 100% !important;
 }
 
 html,

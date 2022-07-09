@@ -1,42 +1,47 @@
 /* eslint-disable @next/next/no-img-element */
+// import { useState } from "react";
 import type { NextPage } from "next";
+import { ChromePicker } from "react-color";
+// import { saveAs } from "file-saver";
 
-const Extract: NextPage = () => {
+const Customize: NextPage = () => {
   return (
     <main className="">
       <section className="mx-auto max-w-4xl">
         <h2 className="mb-3 text-center font-raleway text-4xl font-bold sm:text-5xl">
-          Extract Colors
+          Customize Colors
         </h2>
         <p className="text-center font-medium text-gray-400">
-          Extract colors from uploaded images{" "}
+          You can also select individual colors for a palette{" "}
           <span aria-label="image icon" role="img">
-            🖼️
+            👌
           </span>{" "}
-          You can see an example with the below image
         </p>
         <div className="mx-auto mt-10 items-start justify-end">
           <div className="mx-auto max-w-lg">
-            <div className="w-full rounded-xl bg-gray-800 p-4 text-left">
-              <img
-                src="/banner.jpg"
-                alt="uploaded"
-                className="w-full max-w-full object-cover"
+            <div className="w-full rounded-xl bg-gray-800 p-7 text-left">
+              <ChromePicker
+                styles={{
+                  default: {
+                    body: {
+                      width: "100%",
+                      margin: "0 auto"
+                    }
+                  }
+                }}
+                className="w-full"
               />
             </div>
             <button
               type="button"
               className="my-3 mr-2 w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
             >
-              Upload new image
+              Add color to palette
             </button>
           </div>
 
           <div className="my-8 mx-auto max-w-lg">
-            {/* <h3 className="font-raleway text-2xl font-semibold sm:text-3xl">
-              Extracted
-            </h3> */}
-            <div className="my-7 rounded-md bg-secondary p-3 shadow-md">
+            <div className="mt-7 mb-2 rounded-md bg-secondary p-3 shadow-md">
               <div className="flex flex-col sm:flex-row">
                 <div className="h-10 w-full cursor-pointer bg-primary" />
                 <div className="h-10 w-full cursor-pointer bg-green-500" />
@@ -73,4 +78,4 @@ const Extract: NextPage = () => {
   );
 };
 
-export default Extract;
+export default Customize;

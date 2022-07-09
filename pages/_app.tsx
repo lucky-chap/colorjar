@@ -1,24 +1,19 @@
+/* eslint-disable no-return-assign */
 import "../styles/globals.css";
 import NextNProgress from "nextjs-progressbar";
-import { KBarProvider } from "kbar";
 import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
+import CommandPalette from "../components/CommandPalette";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <KBarProvider>
+    <CommandPalette>
+      {" "}
       <NextNProgress />
-      {/* <KBarPortal>
-          <KBarPositioner>
-            <KBarAnimator>
-              <KBarSearch />
-            </KBarAnimator>
-          </KBarPositioner>
-        </KBarPortal> */}
       <Layout>
         <Component {...pageProps} />
       </Layout>
-    </KBarProvider>
+    </CommandPalette>
   );
 };
 
