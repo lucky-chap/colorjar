@@ -5,7 +5,7 @@ import { useKBar } from "kbar";
 const Header = () => {
   const { query } = useKBar();
   return (
-    <header className="my-8">
+    <header className="mt-8 mb-20">
       <nav className="mx-auto max-w-7xl">
         <ul className="flex items-center justify-between">
           <li className="flex cursor-pointer items-center justify-between transition-all duration-100 ease-linear hover:rotate-[-4deg]">

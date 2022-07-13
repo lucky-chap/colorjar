@@ -61,6 +61,7 @@ model Generated {
   updatedAt     DateTime @updatedAt
   authorId      String?
   author        User?    @relation(fields: [authorId], references: [id])
+  name          String
   type          String
   origin        String
   shades        String[]
@@ -73,6 +74,7 @@ model Extracted {
   updatedAt     DateTime @updatedAt
   authorId      String?
   author        User?    @relation(fields: [authorId], references: [id])
+  name          String
   type          String?
   average       String?
   colors        String[]
@@ -84,6 +86,7 @@ model Customized {
   updatedAt     DateTime @updatedAt
   authorId      String?
   author        User?    @relation(fields: [authorId], references: [id])
+  name          String
   type          String
   colors        String[]
 }
@@ -94,6 +97,7 @@ model Gradient {
   updatedAt     DateTime @updatedAt
   authorId      String?
   author        User?    @relation(fields: [authorId], references: [id])
+  name          String
   type          String
   colors        String[]
 }

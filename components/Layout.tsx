@@ -1,4 +1,5 @@
 import React from "react";
+import Footer from "./Footer";
 import Header from "./Header";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -6,6 +7,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <main className="min-h-screen bg-primary px-3 py-2 text-white">
       <Header />
       {children}
+      <Footer />
     </main>
   );
 };
