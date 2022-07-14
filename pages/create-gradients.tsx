@@ -4,17 +4,15 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import { useSession, signIn } from "next-auth/react";
 import { ChromePicker } from "react-color";
-import { useRouter } from "next/router";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
+import Spinner from "../components/icons/spinner";
 
 const CreateGradients: NextPage = () => {
-  const [animate, setAnimate] = useState(true);
   const [paletteName, setPaletteName] = useState("");
   const [initialColor, setColor] = useState("#3799A0");
-  const [notify, setNotify] = useState<string | null>(null);
+  const [requesting, setRequesting] = useState(false);
   const { data: session } = useSession();
-  const router = useRouter();
 
   const [fromValue, setFromValue] = useState("");
   const [viaValue, setViaValue] = useState("");
@@ -26,56 +24,73 @@ const CreateGradients: NextPage = () => {
 const palette = {
   type: "gradient",
   name: "${paletteName}",
-  from: "${fromValue}",
-  via: "${viaValue}",
-  to: "${toValue}",
   css: "background-image: linear-gradient(${direction}, ${fromValue}, ${viaValue}, ${toValue})"
 }
     `;
 
   const handleSave = async () => {
-    setNotify("Palette saved 🎉.");
-    if (paletteName.trim().length !== 0) {
-      try {
-        await fetch("/api/palettes/generated", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "generated",
-            name: paletteName
-          })
-        }).then((res) => {
-          if (res.ok) {
-            router.push("/palettes/generated");
-            toast.success(notify);
-          } else {
-            setNotify("There was an error saving ❌");
-            toast.error(notify);
-          }
-        });
-      } catch (error) {
-        console.error(error);
+    if (
+      fromValue.trim().length !== 0 &&
+      viaValue.trim().length !== 0 &&
+      toValue.trim().length !== 0
+    ) {
+      setRequesting(true);
+      if (paletteName.trim().length !== 0) {
+        try {
+          await fetch("/api/palettes/gradient", {
+            method: "POST",
+            body: JSON.stringify({
+              type: "gradient",
+              name: paletteName,
+              direction,
+              fromValue,
+              viaValue,
+              toValue
+            })
+          }).then((res) => {
+            if (res.ok) {
+              setRequesting(false);
+              toast.success("Palette saved 👌");
+            } else {
+              setRequesting(false);
+              toast.error("There was an error saving ❌");
+            }
+          });
+        } catch (error: any) {
+          toast.error(error?.data.message);
+        }
+      } else {
+        setRequesting(false);
+        toast.error("Forgot to name it ❓");
       }
     } else {
-      setNotify("Forgot to name it ❓");
-      toast.error(notify);
+      setRequesting(false);
+      toast.error("All fields are required ❌");
     }
   };
 
   const handleDownload = () => {
-    if (paletteName.trim().length !== 0) {
-      const file = new File(
-        [fileTemplate],
-        `${Date.now()}-colorjar-gradient.js`,
-        {
-          type: "application/javascript;charset=utf-8"
-        }
-      );
-      setNotify("Download successful 🚀✨");
-      toast.success(notify);
-      saveAs(file);
+    if (
+      fromValue.trim().length !== 0 &&
+      viaValue.trim().length !== 0 &&
+      toValue.trim().length !== 0
+    ) {
+      if (paletteName.trim().length !== 0) {
+        const file = new File(
+          [fileTemplate],
+          `${Date.now()}-colorjar-gradient.js`,
+          {
+            type: "application/javascript;charset=utf-8"
+          }
+        );
+        toast.success("Download successful 🚀✨");
+        saveAs(file);
+      } else {
+        toast.error("Forgot to name it ❓");
+      }
     } else {
-      setNotify("Forgot to name it ❓");
-      toast.error(notify);
+      setRequesting(false);
+      toast.error("All fields are required ❌");
     }
   };
 
@@ -110,7 +125,7 @@ const palette = {
               <input
                 type="text"
                 className="mb-2 block w-full rounded-md border-2 border-transparent bg-secondary p-2.5 text-sm text-white outline-none transition-all duration-150 ease-linear focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Color"
+                placeholder="From"
                 required
                 value={fromValue}
                 onChange={(e) => setFromValue(e.target.value)}
@@ -118,7 +133,7 @@ const palette = {
               <input
                 type="text"
                 className="mb-2 block w-full rounded-md border-2 border-transparent bg-secondary p-2.5 text-sm text-white outline-none transition-all duration-150 ease-linear focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Color"
+                placeholder="Via"
                 required
                 value={viaValue}
                 onChange={(e) => setViaValue(e.target.value)}
@@ -126,7 +141,7 @@ const palette = {
               <input
                 type="text"
                 className="mb-2 block w-full rounded-md border-2 border-transparent bg-secondary p-2.5 text-sm text-white outline-none transition-all duration-150 ease-linear focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Color"
+                placeholder="To"
                 required
                 value={toValue}
                 onChange={(e) => setToValue(e.target.value)}
@@ -236,18 +251,6 @@ const palette = {
                   to top
                 </label>
               </div>
-              <div className="mr-4 mb-3 flex items-center">
-                <input
-                  type="radio"
-                  value="circle"
-                  name="inline-radio-group"
-                  className="h-4 w-4 text-blue-700 focus:ring-0"
-                  onClick={(e) => setDirection(e.currentTarget.value)}
-                />
-                <label className="ml-2 text-sm font-medium text-gray-400">
-                  circle
-                </label>
-              </div>
             </div>
           </div>
 
@@ -264,13 +267,6 @@ const palette = {
                 {/* Gradient */}
               </div>
             </div>
-            <button
-              type="button"
-              className="font-raleway text-xs font-bold uppercase text-gray-600"
-              onClick={() => setAnimate(!animate)}
-            >
-              <span>{animate ? "remove animation" : "add animation"}</span>
-            </button>
           </div>
 
           <div className="mx-auto mt-10 max-w-lg">
@@ -286,15 +282,24 @@ const palette = {
                 />
                 <button
                   type="submit"
+                  disabled={requesting}
                   onClick={() => handleSave()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className={`my-3 mr-2 flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500 ${
+                    requesting ? "cursor-not-allowed" : ""
+                  }`}
                 >
-                  Save palette
+                  {requesting ? (
+                    <>
+                      <Spinner /> <span>Saving</span>
+                    </>
+                  ) : (
+                    <span>Save palette</span>
+                  )}
                 </button>
                 <button
                   type="submit"
                   onClick={() => handleDownload()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className="my-3 mr-2 rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
                 >
                   Download
                 </button>

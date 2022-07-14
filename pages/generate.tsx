@@ -1,18 +1,19 @@
 /* eslint-disable no-console */
 import { useState } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import { useSession, signIn } from "next-auth/react";
 import { ChromePicker } from "react-color";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
 
 import { createTintsAndShades } from "../utils/createTintsAndShades";
+import Spinner from "../components/icons/spinner";
 
 const Generate: NextPage = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [initialColor, setColor] = useState("#18A2D5");
-  const [notify, setNotify] = useState<string | null>(null);
+  const [requesting, setRequesting] = useState(false);
   const [paletteName, setPaletteName] = useState("");
   const generated = createTintsAndShades(initialColor);
   const { data: session } = useSession();
@@ -43,8 +44,8 @@ const palette = {
     `;
 
   const handleSave = async () => {
-    setNotify("Palette saved 🎉.");
     if (paletteName.trim().length !== 0) {
+      setRequesting(true);
       try {
         await fetch("/api/palettes/generated", {
           method: "POST",
@@ -57,19 +58,18 @@ const palette = {
           })
         }).then((res) => {
           if (res.ok) {
-            router.push("/palettes/generated");
-            toast.success(notify);
+            setRequesting(false);
+            toast.success("Palette saved 👌");
           } else {
-            setNotify("There was an error saving ❌");
-            toast.error(notify);
+            toast.error("There was an error saving ❌");
           }
         });
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        toast.error(error?.data.message);
       }
     } else {
-      setNotify("Forgot to name it ❓");
-      toast.error(notify);
+      setRequesting(false);
+      toast.error("Forgot to name it ❓");
     }
   };
 
@@ -82,12 +82,10 @@ const palette = {
           type: "application/javascript;charset=utf-8"
         }
       );
-      setNotify("Download successful 🚀✨");
-      toast.success(notify);
+      toast.success("Download successful 🚀✨");
       saveAs(file);
     } else {
-      setNotify("Forgot to name it ❓");
-      toast.error(notify);
+      toast.error("Forgot to name it ❓");
     }
   };
 
@@ -177,15 +175,24 @@ const palette = {
                 />
                 <button
                   type="submit"
+                  disabled={requesting}
                   onClick={() => handleSave()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className={`my-3 mr-2 flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500 ${
+                    requesting ? "cursor-not-allowed" : ""
+                  }`}
                 >
-                  Save palette
+                  {requesting ? (
+                    <>
+                      <Spinner /> <span>Saving</span>
+                    </>
+                  ) : (
+                    <span>Save palette</span>
+                  )}
                 </button>
                 <button
                   type="submit"
                   onClick={() => handleDownload()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className="my-3 mr-2 rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
                 >
                   Download
                 </button>

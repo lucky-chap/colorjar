@@ -50,7 +50,7 @@ model User {
   generated     Generated[]
   extracted     Extracted[]
   customized    Customized[]
-  gradient      Gradient[]
+  gradients     Gradient[]
   bookmarks     Bookmark[]
   sessions      Session[]
 }
@@ -99,7 +99,10 @@ model Gradient {
   author        User?    @relation(fields: [authorId], references: [id])
   name          String
   type          String
-  colors        String[]
+  direction     String
+  fromValue     String
+  viaValue      String
+  toValue       String
 }
 
 model Bookmark {

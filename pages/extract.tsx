@@ -7,18 +7,22 @@
 
 import React, { useState, useRef } from "react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import { prominent, average } from "color.js";
 import { saveAs } from "file-saver";
+import toast from "react-hot-toast";
 import { useSession, signIn } from "next-auth/react";
 
+import Spinner from "../components/icons/spinner";
+
 const Extract: NextPage = () => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const fileRef = useRef();
   const [image, setImage] = useState<null | string | ArrayBuffer>(null);
   const [colors, setColors] = useState<string[]>();
   const [paletteName, setPaletteName] = useState("");
+  const [requesting, setRequesting] = useState(false);
   const [averageColor, setAverageColor] = useState<null | boolean>(null);
   const { data: session } = useSession();
 
@@ -55,37 +59,59 @@ const palette = {
     `;
 
   const handleSave = async () => {
-    try {
-      await fetch("/api/palettes/extracted", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "extracted",
-          name: paletteName,
-          average: averageColor,
-          extracted: colors
-        })
-      }).then((res) => {
-        if (res.ok) {
-          router.push("/palettes/extracted");
-          alert("Added successfully");
-        } else {
-          alert("Error adding");
+    if (colors !== undefined) {
+      setRequesting(true);
+
+      if (paletteName.trim().length !== 0) {
+        try {
+          await fetch("/api/palettes/extracted", {
+            method: "POST",
+            body: JSON.stringify({
+              type: "extracted",
+              name: paletteName,
+              average: averageColor,
+              extracted: colors
+            })
+          }).then((res) => {
+            if (res.ok) {
+              setRequesting(false);
+              toast.success("Palette saved 👌");
+            } else {
+              toast.error("There was an error saving ❌");
+            }
+          });
+        } catch (error: any) {
+          toast.error(error?.data.message);
         }
-      });
-    } catch (error) {
-      console.error(error);
+      } else {
+        setRequesting(false);
+        toast.error("Forgot to name it ❓");
+      }
+    } else {
+      setRequesting(false);
+      toast.error("Select an image 🖼️");
     }
   };
 
   const handleDownload = () => {
-    const file = new File(
-      [fileTemplate],
-      `${Date.now()}-colorjar-extracted.js`,
-      {
-        type: "application/javascript;charset=utf-8"
+    if (colors !== undefined) {
+      setRequesting(false);
+      if (paletteName.trim().length !== 0) {
+        const file = new File(
+          [fileTemplate],
+          `${Date.now()}-colorjar-extracted.js`,
+          {
+            type: "application/javascript;charset=utf-8"
+          }
+        );
+        toast.success("Download successful 🚀✨");
+        saveAs(file);
+      } else {
+        toast.error("Forgot to name it ❓");
       }
-    );
-    saveAs(file);
+    } else {
+      toast.error("Select an image 🖼️");
+    }
   };
 
   return (
@@ -175,15 +201,24 @@ const palette = {
                 />
                 <button
                   type="submit"
+                  disabled={requesting}
                   onClick={() => handleSave()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className={`my-3 mr-2 flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500 ${
+                    requesting ? "cursor-not-allowed" : ""
+                  }`}
                 >
-                  Save palette
+                  {requesting ? (
+                    <>
+                      <Spinner /> <span>Saving</span>
+                    </>
+                  ) : (
+                    <span>Save palette</span>
+                  )}
                 </button>
                 <button
                   type="submit"
                   onClick={() => handleDownload()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className="my-3 mr-2 rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
                 >
                   Download
                 </button>

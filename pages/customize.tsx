@@ -5,11 +5,15 @@ import React, { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { ChromePicker } from "react-color";
 import { saveAs } from "file-saver";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
+import toast from "react-hot-toast";
+
+import Spinner from "../components/icons/spinner";
 
 const Customize: NextPage = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [initialColor, setColor] = useState("#3799A0");
+  const [requesting, setRequesting] = useState(false);
   const [colors, setColors] = useState<string[]>([]);
   const [paletteName, setPaletteName] = useState("");
 
@@ -24,31 +28,46 @@ const palette = {
 `;
 
   const handleDownload = () => {
-    const file = new File([fileTemplate], `${Date.now()}-colorjar-custom.js`, {
-      type: "application/javascript;charset=utf-8"
-    });
-    saveAs(file);
+    if (paletteName.trim().length !== 0) {
+      const file = new File(
+        [fileTemplate],
+        `${Date.now()}-colorjar-custom.js`,
+        {
+          type: "application/javascript;charset=utf-8"
+        }
+      );
+      toast.success("Download successful 🚀✨");
+      saveAs(file);
+    } else {
+      toast.error("Forgot to name it ❓");
+    }
   };
 
   const handleSave = async () => {
-    try {
-      await fetch("/api/palettes/customized", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "custom",
-          name: paletteName,
-          colors
-        })
-      }).then((res) => {
-        if (res.ok) {
-          router.push("/palettes/custom");
-          alert("Added successfully");
-        } else {
-          alert("Error adding");
-        }
-      });
-    } catch (error) {
-      console.error(error);
+    if (paletteName.trim().length !== 0) {
+      setRequesting(true);
+      try {
+        await fetch("/api/palettes/customized", {
+          method: "POST",
+          body: JSON.stringify({
+            type: "custom",
+            name: paletteName,
+            colors
+          })
+        }).then((res) => {
+          if (res.ok) {
+            setRequesting(false);
+            toast.success("Palette saved 👌");
+          } else {
+            toast.error("There was an error saving ❌");
+          }
+        });
+      } catch (error: any) {
+        toast.error(error?.data.message);
+      }
+    } else {
+      setRequesting(false);
+      toast.error("Forgot to name it ❓");
     }
   };
 
@@ -142,17 +161,24 @@ const palette = {
                 />
                 <button
                   type="submit"
-                  disabled={colors.length !== 10}
+                  disabled={requesting}
                   onClick={() => handleSave()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className={`my-3 mr-2 flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500 ${
+                    requesting ? "cursor-not-allowed" : ""
+                  }`}
                 >
-                  Save palette
+                  {requesting ? (
+                    <>
+                      <Spinner /> <span>Saving</span>
+                    </>
+                  ) : (
+                    <span>Save palette</span>
+                  )}
                 </button>
                 <button
                   type="submit"
-                  disabled={colors.length !== 10}
                   onClick={() => handleDownload()}
-                  className="my-3 mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                  className="my-3 mr-2 rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white transition-all duration-100 ease-linear hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500"
                 >
                   Download
                 </button>
